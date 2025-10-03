@@ -5,7 +5,9 @@ const express = require('express');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 
-const requestRouts = require('./route/requests');
+const imageANDLogsControllers = require('./controllers/imageANDLogs');
+const imageANDLogsRoutes = require('./route/imageANDLogs');
+const lessonsRoutes = require('./route/lessons');
 
 
 dotenv.config();
@@ -18,10 +20,13 @@ const createLogStream = fs.createWriteStream(
 )
 
 app.use(morgan('combined', { stream: createLogStream }));
-app.use(express.static(path.join(__dirname, 'static')));
+app.use('/puclic', express.static(path.join(__dirname, 'public')));
+app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
-app.use(requestRouts);
+app.use(imageANDLogsControllers.getConsoleLogs);
+app.use(imageANDLogsRoutes);
+app.use('/api', lessonsRoutes);
 
 app.use((error, req, res, next) => {
     res.status(404).send('Error: ' + error.message);
