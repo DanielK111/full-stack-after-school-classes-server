@@ -1,9 +1,18 @@
+const path = require('path');
+const fs = require('fs');
 const url = require('url');
 
 const lodash = require('lodash');
 
 const lessons = require('../data/lessons');
 
+
+exports.getLogs = (req, res, next) => {
+    console.log('Request URL: ' + req.url);
+    console.log("Request IP: " + req.ip);
+    console.log(['::ffff:127.0.0.1'].indexOf(req.ip));
+    next();
+}
 
 exports.getLessonLocation = (req, res) => {
     const reqUrl = req.url;
@@ -37,4 +46,25 @@ exports.getLastPrice = (req, res) => {
 exports.getSuffledLessons = (req, res) => {
     const shuffled = lodash.shuffle(lessons.lessons);
     res.end(JSON.stringify(shuffled));
+}
+
+exports.getFile = (req, res, next) => {
+    const filePath = path.join(__dirname, '..', 'static', 'images', req.query.file);
+    
+    fs.stat(filePath, (err, data) => {
+        if (err) {
+            console.log(err)
+            const error = new Error('An error occured in file system');
+            error.statusCode = 404;
+            return next(error);
+        }
+
+        if(data.isFile()) {
+            res.sendFile(filePath);
+        } else {
+            const error = new Error('File not found');
+            error.statusCode = 404;
+            return next(error);
+        }
+    })
 }
