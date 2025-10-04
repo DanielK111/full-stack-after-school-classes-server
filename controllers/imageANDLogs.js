@@ -10,7 +10,9 @@ exports.getConsoleLogs = (req, res, next) => {
 }
 
 exports.getFile = (req, res, next) => {
-    const filePath = path.join(__dirname, '..', 'images', req.url);
+    const filename = req.params.filename;
+    console.log(filename)
+    const filePath = path.join(__dirname, '..', 'images', filename);
     
     fs.stat(filePath, (err, data) => {
         if (err) {

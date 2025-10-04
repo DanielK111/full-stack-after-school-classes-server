@@ -5,7 +5,7 @@ const imageANDLogsControllers = require('../controllers/imageANDLogs');
 const router = express.Router();
 
 
-router.get('/images', imageANDLogsControllers.getFile);
+router.get('/images/:filename', imageANDLogsControllers.getFile);
 
 
 module.exports = router;

@@ -2,6 +2,7 @@ const path = require('path');
 const fs = require('fs');
 
 const express = require('express');
+const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 
@@ -13,6 +14,9 @@ const lessonsRoutes = require('./route/lessons');
 dotenv.config();
 
 const app = express();
+app.set('json spaces', 3);
+app.use(cors());
+app.use(express.json());
 
 const createLogStream = fs.createWriteStream(
     path.join(__dirname, 'logs.log'),

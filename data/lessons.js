@@ -4,7 +4,7 @@ export const lessons = [
         subject: 'Math',
         location: 'London',
         price: 100,
-        image: 'src/assets/images/math.png',
+        image: 'images/math.png',
         space: 5,
         rating: 5
     },
@@ -13,7 +13,7 @@ export const lessons = [
         subject: 'Math',
         location: 'Oxford',
         price: 100,
-        image: 'src/assets/images/math.png',
+        image: 'images/math.png',
         space: 5,
         rating: 3
     },
@@ -22,7 +22,7 @@ export const lessons = [
         subject: 'English',
         location: 'London',
         price: 100,
-        image: 'src/assets/images/english.png',
+        image: 'images/english.png',
         space: 5,
         rating: 4
     },
@@ -31,7 +31,7 @@ export const lessons = [
         subject: 'English',
         location: 'York',
         price: 80,
-        image: 'src/assets/images/english.png',
+        image: 'images/english.png',
         space: 5,
         rating: 3
     },
@@ -40,7 +40,7 @@ export const lessons = [
         subject: 'Music',
         location: 'Bristol',
         price: 90,
-        image: 'src/assets/images/music.png',
+        image: 'images/music.png',
         space: 5,
         rating: 3
     },
@@ -49,7 +49,7 @@ export const lessons = [
         subject: 'Music',
         location: 'Kent',
         price: 80,
-        image: 'src/assets/images/music.png',
+        image: 'images/music.png',
         space: 5,
         rating: 4
     },
@@ -58,7 +58,7 @@ export const lessons = [
         subject: 'Physics',
         location: 'Bristol',
         price: 95,
-        image: 'src/assets/images/physics.png',
+        image: 'images/physics.png',
         space: 5,
         rating: 3
     },
@@ -67,7 +67,7 @@ export const lessons = [
         subject: 'Physics',
         location: 'London',
         price: 100,
-        image: 'src/assets/images/physics.png',
+        image: 'images/physics.png',
         space: 5,
         rating: 5
     },
@@ -76,7 +76,7 @@ export const lessons = [
         subject: 'History',
         location: 'Reading',
         price: 90,
-        image: 'src/assets/images/history.png',
+        image: 'images/history.png',
         space: 5,
         rating: 2
     },
@@ -85,7 +85,7 @@ export const lessons = [
         subject: 'History',
         location: 'Bristol',
         price: 65,
-        image: 'src/assets/images/history.png',
+        image: 'images/history.png',
         space: 5,
         rating: 4
     }
