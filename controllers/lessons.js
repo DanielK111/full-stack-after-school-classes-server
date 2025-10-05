@@ -105,7 +105,9 @@ exports.deleteLesson = (req, res, next) => {
 }
 
 exports.postOrder = (req, res, next) => {
-    myOrder.push(req.body.cart);
+    const body = req.body;
+    console.log(body)
+    myOrder.push(body);
     cart = [];
     totalQuantity = 0;
     for(const p of myOrder)
