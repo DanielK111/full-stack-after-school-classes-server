@@ -1,13 +1,14 @@
 const lodash = require('lodash');
+const { getDB } = require('../util/database');
 
-const lessons = require('../data/lessons').lessons;
 const states = require('../data/states').states;
 
 let cart = [];
 let totalQuantity = 0;
 const myOrder = [];
 
-exports.getSuffledLessons = (req, res, next) => {
+exports.getSuffledLessons = async (req, res, next) => {
+    const lessons = await req.collection.find().toArray();
     const shuffled = lodash.shuffle(lessons);
     res.json({
         lessons: shuffled,
@@ -18,8 +19,13 @@ exports.getSuffledLessons = (req, res, next) => {
     });
 }
 
-exports.getLessonById = (req, res, next) => {
+exports.getLessonById = async (req, res, next) => {
     const lessonId = parseInt(req.params[0], 10);
+    const db = getDB();
+    // I can just search mongodb for specific id but I wanted to show I know lodash
+    // This way return value is an object(lesson with id === lessonId)
+    // const lesson = await db.collection('lessons').findOne({ id: lessonId });
+    const lessons = await db.collection('lessons').find().toArray();
     const lesson = lodash.find(lessons, lesson => lesson.id === lessonId);
     if (lesson) {
         return res.json({ lesson })
@@ -29,7 +35,7 @@ exports.getLessonById = (req, res, next) => {
     return next(error);
 }
 
-exports.getLessonByLocation = (req, res, next) => {
+exports.getLessonByLocation = async (req, res, next) => {
     const location = req.query.location;
 
 
@@ -41,17 +47,20 @@ exports.getLessonByLocation = (req, res, next) => {
     // });
     // console.log(locations)
     // const lesson = lodash.find(locations, lesson => lesson.location === location);
+    const lessons = await req.collection.find().toArray();
     const lesson = lodash.find(lessons, lesson => lesson.location.toLocaleLowerCase() === location.toLocaleLowerCase());
     res.json({ lesson });
 }
 
-exports.getFirstLessonByPrice = (req, res, next) => {
+exports.getFirstLessonByPrice = async (req, res, next) => {
     // const lesson = lodash.filter(lessons.lessons, lesson => lesson.price < 100); // Returns array of lessons
+    const lessons = await req.collection.find().toArray();
     const lesson = lodash.find(lessons, lesson => lesson.price < 100);
     res.json({ lesson });
 }
 
-exports.getLastLessonByPrice = (req, res, next) => {
+exports.getLastLessonByPrice = async (req, res, next) => {
+    const lessons = await req.collection.find().toArray();
     const lesson = lodash.findLast(lessons, lesson => lesson.price < 100);
     res.json({ lesson });
 }
@@ -104,14 +113,24 @@ exports.deleteLesson = (req, res, next) => {
     res.json({ cart, totalQuantity, msg: 'Deleted Succcessfully!' });
 }
 
-exports.postOrder = (req, res, next) => {
+exports.postOrder = async (req, res, next) => {
     const body = req.body;
-    console.log(body)
-    myOrder.push(body);
-    cart = [];
-    totalQuantity = 0;
-    for(const p of myOrder)
-        console.log(p);
-    console.log(myOrder.length);
-    res.json({ myOrder, cart, totalQuantity, msg: 'Order placed!' });
+    req.collection.insertOne(body)
+    .then(result => {
+        myOrder.push(body);
+        const db = getDB();
+        cart.forEach(l => {
+            db.collection('lessons').updateOne(
+                { id: l.id },
+                { $set: { space: l.space - l.quantity } }
+            )
+        });
+        cart = [];
+        totalQuantity = 0;
+        for(const p of myOrder)
+            console.log(p);
+        console.log(myOrder.length);
+    
+        return res.json({ myOrder, cart, totalQuantity, msg: 'Order placed!' });
+    })
 }

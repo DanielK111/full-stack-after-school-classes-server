@@ -1,21 +1,27 @@
 const express = require('express');
 
 const lessonsControllers = require('../controllers/lessons');
+const { getDB } = require('../util/database');
 
 const router = express.Router();
 
 
-router.get('/lessons', lessonsControllers.getSuffledLessons);
+router.param('collectionName', async function(req, res, next, collectionName) {
+    const db = getDB();
+    req.collection = db.collection(collectionName);
+    return next();
+})
+router.get('/:collectionName', lessonsControllers.getSuffledLessons);
 router.get(/^\/lessons\/(\d+)$/, lessonsControllers.getLessonById);
-router.get('/lessons/location', lessonsControllers.getLessonByLocation);
-router.get('/lessons/price/first', lessonsControllers.getFirstLessonByPrice);
-router.get('/lessons/price/last', lessonsControllers.getLastLessonByPrice);
+router.get('/:collectionName/location', lessonsControllers.getLessonByLocation);
+router.get('/:collectionName/price/first', lessonsControllers.getFirstLessonByPrice);
+router.get('/:collectionName/price/last', lessonsControllers.getLastLessonByPrice);
 
 router.post('/lessons', lessonsControllers.postLesson);
 router.put('/lessons/:lessonId', lessonsControllers.putLesson);
 router.delete('/lessons/:lessonId', lessonsControllers.deleteLesson);
 
-router.post('/orders', lessonsControllers.postOrder);
+router.post('/:collectionName', lessonsControllers.postOrder);
 
 
 module.exports = router;

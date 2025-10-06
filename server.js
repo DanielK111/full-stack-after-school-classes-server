@@ -9,12 +9,14 @@ const dotenv = require('dotenv');
 const imageANDLogsControllers = require('./controllers/imageANDLogs');
 const imageANDLogsRoutes = require('./route/imageANDLogs');
 const lessonsRoutes = require('./route/lessons');
+require('./util/database');
 
 
 dotenv.config();
 
 const app = express();
 app.set('json spaces', 3);
+
 app.use(cors());
 app.use(express.json());
 
