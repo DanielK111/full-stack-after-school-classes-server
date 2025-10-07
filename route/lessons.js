@@ -12,7 +12,7 @@ router.param('collectionName', async function(req, res, next, collectionName) {
     return next();
 })
 router.get('/:collectionName', lessonsControllers.getSuffledLessons);
-router.get(/^\/lessons\/(\d+)$/, lessonsControllers.getLessonById);
+router.get(/^\/lessons\/([a-fA-F0-9]{24})$/, lessonsControllers.getLessonById);
 router.get('/:collectionName/location', lessonsControllers.getLessonByLocation);
 router.get('/:collectionName/price/first', lessonsControllers.getFirstLessonByPrice);
 router.get('/:collectionName/price/last', lessonsControllers.getLastLessonByPrice);

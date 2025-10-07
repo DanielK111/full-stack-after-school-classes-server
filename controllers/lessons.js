@@ -1,5 +1,6 @@
 const lodash = require('lodash');
 const { getDB } = require('../util/database');
+const { ObjectId } = require('mongodb');
 
 const states = require('../data/states').states;
 
@@ -20,13 +21,13 @@ exports.getSuffledLessons = async (req, res, next) => {
 }
 
 exports.getLessonById = async (req, res, next) => {
-    const lessonId = parseInt(req.params[0], 10);
+    const lessonId = req.params[0];
     const db = getDB();
     // I can just search mongodb for specific id but I wanted to show I know lodash
-    // This way return value is an object(lesson with id === lessonId)
-    // const lesson = await db.collection('lessons').findOne({ id: lessonId });
+    // This way return value is an object(lesson with _id === lessonId)
+    // const lesson = await db.collection('lessons').findOne({ _id: new ObjectId(lessonId) });
     const lessons = await db.collection('lessons').find().toArray();
-    const lesson = lodash.find(lessons, lesson => lesson.id === lessonId);
+    const lesson = lodash.find(lessons, lesson => lesson._id.toString() === lessonId);
     if (lesson) {
         return res.json({ lesson })
     }
@@ -78,8 +79,8 @@ exports.postLesson = (req, res, next) => {
 }
 
 exports.putLesson = (req, res, next) => {
-    const lessonId = parseInt(req.params.lessonId);
-    const cartProductIndex = cart.findIndex(l => l.id === lessonId);
+    const lessonId = req.params.lessonId;
+    const cartProductIndex = cart.findIndex(l => l._id === lessonId);
     let itemCount = 1;
     const items = [ ...cart ];
     
@@ -95,12 +96,12 @@ exports.putLesson = (req, res, next) => {
 }
 
 exports.deleteLesson = (req, res, next) => {
-    const lessonId = parseInt(req.params.lessonId);
-    const cartProduct = cart.find(p => p.id === lessonId);
+    const lessonId = req.params.lessonId;
+    const cartProduct = cart.find(p => p._id === lessonId);
     if (cartProduct.quantity > 1) {
         cartProduct.quantity -= 1;
     } else {
-        cart = cart.filter(p => p.id !== lessonId);
+        cart = cart.filter(p => p._id !== lessonId);
     }
     
     totalQuantity -= 1;
@@ -128,11 +129,11 @@ exports.postOrder = async (req, res, next) => {
 }
 
 exports.updateLesson = async (req, res, next) => {
-    const lessonId = parseInt(req.params.lessonId);
+    const lessonId = req.params.lessonId;
     const body = req.body;
 
     req.collection.updateOne(
-        { id: lessonId },
+        { _id: new ObjectId(lessonId) },
         { $set: { space: body.space - body.quantity } }
     )
     .then (result => {
