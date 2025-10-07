@@ -17,11 +17,12 @@ router.get('/:collectionName/location', lessonsControllers.getLessonByLocation);
 router.get('/:collectionName/price/first', lessonsControllers.getFirstLessonByPrice);
 router.get('/:collectionName/price/last', lessonsControllers.getLastLessonByPrice);
 
-router.post('/lessons', lessonsControllers.postLesson);
-router.put('/lessons/:lessonId', lessonsControllers.putLesson);
+router.post('/lessons/add-to-cart', lessonsControllers.postLesson);
+router.put('/lessons/update-cart/:lessonId', lessonsControllers.putLesson);
 router.delete('/lessons/:lessonId', lessonsControllers.deleteLesson);
 
 router.post('/:collectionName', lessonsControllers.postOrder);
+router.put('/:collectionName/:lessonId', lessonsControllers.updateLesson);
 
 
 module.exports = router;

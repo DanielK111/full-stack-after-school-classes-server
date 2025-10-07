@@ -118,19 +118,24 @@ exports.postOrder = async (req, res, next) => {
     req.collection.insertOne(body)
     .then(result => {
         myOrder.push(body);
-        const db = getDB();
-        cart.forEach(l => {
-            db.collection('lessons').updateOne(
-                { id: l.id },
-                { $set: { space: l.space - l.quantity } }
-            )
-        });
         cart = [];
         totalQuantity = 0;
-        for(const p of myOrder)
-            console.log(p);
+        console.log(myOrder);
         console.log(myOrder.length);
     
         return res.json({ myOrder, cart, totalQuantity, msg: 'Order placed!' });
+    })
+}
+
+exports.updateLesson = async (req, res, next) => {
+    const lessonId = parseInt(req.params.lessonId);
+    const body = req.body;
+
+    req.collection.updateOne(
+        { id: lessonId },
+        { $set: { space: body.space - body.quantity } }
+    )
+    .then (result => {
+        return res.json({ msg: 'Lesson Updated!' });
     })
 }
