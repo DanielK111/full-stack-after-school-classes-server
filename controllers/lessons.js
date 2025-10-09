@@ -9,7 +9,25 @@ let totalQuantity = 0;
 const myOrder = [];
 
 exports.getSuffledLessons = async (req, res, next) => {
-    const lessons = await req.collection.find().toArray();
+    const searchText = req.query.search;
+    console.log(searchText)
+    let lessons;
+
+    if (searchText) {
+        // Perform search with query
+        const searchNum = Number(searchText);
+
+        const query = {
+            $or: [
+                { subject: { $regex: searchText, $options: 'i' } },
+                { location: { $regex: searchText, $options: 'i' } },
+                ...isNaN(searchNum) ? [] : [{ space: searchNum }]
+            ]
+        };
+        lessons = await req.collection.find(query).toArray();
+    } else {
+        lessons = await req.collection.find().toArray();
+    }
     const shuffled = lodash.shuffle(lessons);
     res.json({
         lessons: shuffled,
