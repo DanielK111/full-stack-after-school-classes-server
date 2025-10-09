@@ -141,7 +141,7 @@ exports.deleteLesson = (req, res, next) => {
 
 exports.postOrder = async (req, res, next) => {
     const body = req.body;
-    req.collection.insertOne(body)
+    req.collection.insertOne({ ...body, totalPrice })
     .then(result => {
         myOrder.push(body);
         cart = [];
