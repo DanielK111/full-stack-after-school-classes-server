@@ -6,6 +6,7 @@ const states = require('../data/states').states;
 
 let cart = [];
 let totalQuantity = 0;
+let totalPrice = 0;
 const myOrder = [];
 
 exports.getSuffledLessons = async (req, res, next) => {
@@ -34,6 +35,7 @@ exports.getSuffledLessons = async (req, res, next) => {
         states: states,
         cart,
         totalQuantity,
+        totalPrice,
         myOrder
     });
 }
@@ -87,19 +89,22 @@ exports.getLastLessonByPrice = async (req, res, next) => {
 exports.postLesson = (req, res, next) => {
     const lesson = req.body.lesson;
     let itemCount = 1;
+    totalPrice += lesson.price;
     cart.push({ ...lesson, quantity: itemCount });
 
     totalQuantity += 1;
 
     console.log(cart)
 
-    res.json({ cart, totalQuantity });
+    res.json({ cart, totalQuantity, totalPrice });
 }
 
 exports.putLesson = (req, res, next) => {
     const lessonId = req.params.lessonId;
     const cartProductIndex = cart.findIndex(l => l._id === lessonId);
+    const lesson = cart[cartProductIndex];
     let itemCount = 1;
+    totalPrice += lesson.price;
     const items = [ ...cart ];
     
 
@@ -110,12 +115,13 @@ exports.putLesson = (req, res, next) => {
 
     console.log(cart)
 
-    res.json({ cart, totalQuantity, msg: 'Updated Succcessfully!' });
+    res.json({ cart, totalQuantity, totalPrice, msg: 'Updated Succcessfully!' });
 }
 
 exports.deleteLesson = (req, res, next) => {
     const lessonId = req.params.lessonId;
     const cartProduct = cart.find(p => p._id === lessonId);
+
     if (cartProduct.quantity > 1) {
         cartProduct.quantity -= 1;
     } else {
@@ -123,13 +129,14 @@ exports.deleteLesson = (req, res, next) => {
     }
     
     totalQuantity -= 1;
+    totalPrice -= cartProduct.price;
     if (totalQuantity < 0)
         totalQuantity = 0
 
 
     console.log(cart)
 
-    res.json({ cart, totalQuantity, msg: 'Deleted Succcessfully!' });
+    res.json({ cart, totalQuantity, totalPrice, msg: 'Deleted Succcessfully!' });
 }
 
 exports.postOrder = async (req, res, next) => {
@@ -139,10 +146,11 @@ exports.postOrder = async (req, res, next) => {
         myOrder.push(body);
         cart = [];
         totalQuantity = 0;
+        totalPrice = 0;
         console.log(myOrder);
         console.log(myOrder.length);
     
-        return res.json({ myOrder, cart, totalQuantity, msg: 'Order placed!' });
+        return res.json({ myOrder, cart, totalQuantity, totalPrice, msg: 'Order placed!' });
     })
 }
 
