@@ -9,6 +9,7 @@ const dotenv = require('dotenv');
 const imageANDLogsControllers = require('./controllers/imageANDLogs');
 const imageANDLogsRoutes = require('./route/imageANDLogs');
 const lessonsRoutes = require('./route/lessons');
+const usersRoutes = require('./route/users');
 require('./util/database');
 
 
@@ -32,6 +33,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use(imageANDLogsControllers.getConsoleLogs);
 app.use(imageANDLogsRoutes);
+app.use('/users', usersRoutes);
 app.use('/api', lessonsRoutes);
 
 app.use((error, req, res, next) => {
