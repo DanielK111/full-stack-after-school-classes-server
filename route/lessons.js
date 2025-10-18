@@ -2,6 +2,7 @@ const express = require('express');
 
 const lessonsControllers = require('../controllers/lessons');
 const { getDB } = require('../util/database');
+const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
 
@@ -21,8 +22,8 @@ router.post('/lessons/add-to-cart', lessonsControllers.postLesson);
 router.put('/lessons/update-cart/:lessonId', lessonsControllers.putLesson);
 router.delete('/lessons/:lessonId', lessonsControllers.deleteLesson);
 
-router.post('/:collectionName', lessonsControllers.postOrder);
-router.put('/:collectionName/:lessonId', lessonsControllers.updateLesson);
+router.post('/:collectionName', isAuth, lessonsControllers.postOrder);
+router.put('/:collectionName/:lessonId', isAuth, lessonsControllers.updateLesson);
 
 
 module.exports = router;
