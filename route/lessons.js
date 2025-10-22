@@ -2,6 +2,7 @@ const express = require('express');
 
 const lessonsControllers = require('../controllers/lessons');
 const { getDB } = require('../util/database');
+const optionalAuth = require('../middleware/optional-auth');
 const isAuth = require('../middleware/is-auth');
 
 const router = express.Router();
@@ -12,7 +13,7 @@ router.param('collectionName', async function(req, res, next, collectionName) {
     req.collection = db.collection(collectionName);
     return next();
 })
-router.get('/:collectionName', lessonsControllers.getSuffledLessons);
+router.get('/:collectionName', optionalAuth, lessonsControllers.getSuffledLessons);
 router.get(/^\/lessons\/([a-fA-F0-9]{24})$/, lessonsControllers.getLessonById);
 router.get('/:collectionName/location', lessonsControllers.getLessonByLocation);
 router.get('/:collectionName/price/first', lessonsControllers.getFirstLessonByPrice);

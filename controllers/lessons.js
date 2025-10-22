@@ -16,7 +16,7 @@ const myOrder = [];
 
 exports.getSuffledLessons = async (req, res, next) => {
     const searchText = req.query.search;
-    console.log(searchText)
+    // console.log(searchText)
     let lessons;
 
     if (searchText) {
@@ -41,7 +41,8 @@ exports.getSuffledLessons = async (req, res, next) => {
         cart,
         totalQuantity,
         totalPrice,
-        myOrder
+        myOrder,
+        user: req.user || []
     });
 }
 

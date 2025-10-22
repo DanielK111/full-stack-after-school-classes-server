@@ -33,7 +33,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 app.use(imageANDLogsControllers.getConsoleLogs);
 app.use(imageANDLogsRoutes);
-app.use('/users', usersRoutes);
+app.use('/', usersRoutes);
 app.use('/api', lessonsRoutes);
 
 app.use((error, req, res, next) => {

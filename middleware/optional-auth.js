@@ -9,7 +9,7 @@ module.exports = async (req, res, next) => {
     const authHeader = req.header('authorization');
 
     if(!authHeader) {
-        return res.status(401).json({ msg: 'Not authenticated.' });
+        return next();
     }
 
     const token = authHeader.split(' ')[1];
@@ -18,15 +18,14 @@ module.exports = async (req, res, next) => {
     try {
         decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
-        return res.json({ msg: 'Invalid or expired token.' });
+        return next();
     }
 
-    if (decodedToken) {
-        const db = getDB();
-        const user = await db.collection('users').find({ _id: new ObjectId(decodedToken.user._id) }).toArray();
-        req.user = user;
-    } else {
-        req.user = null;
+    const db = getDB();
+    const user = await db.collection('users').find({ _id: new ObjectId(decodedToken.user._id) }).toArray();
+    if (!user) {
+        return next();
     }
+    req.user = user;
     next();
 }
