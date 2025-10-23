@@ -48,17 +48,17 @@ exports.signup = async (req, res, next) => {
         fullname.length <= 0 || email.length <= 0 || password.length <= 0 || confirmPassword.length <= 0 ||
         address.length <= 0 || city.length <= 0 || state.length <= 0 || zip.length <= 0 || phone.length <= 0
     ) {
-        return res.status(422).json({ msg: "None of fields can be left empty." });
+        return res.status(422).json({ error: true, msg: "None of fields can be left empty." });
     }
 
     if (password !== confirmPassword) {
-        return res.status(422).json({ msg: "Passwords doesn't match." });
+        return res.status(422).json({ error: true, msg: "Passwords doesn't match." });
     }
 
     const user = await req.collection.findOne({ email });
 
     if (user) {
-        return res.status(422).json({ msg: "User already exists." });
+        return res.status(422).json({ error: true, msg: "User already exists." });
     }
 
     bcrypt.hash(password, 12)
@@ -69,7 +69,7 @@ exports.signup = async (req, res, next) => {
             confirmPassword: hashedPassword
         })
         .then(result => {
-            res.status(201).json({ msg: 'User created.', result });
+            res.status(201).json({ error: false, msg: 'User created.', result });
             console.log('result: ');
             console.log(result);
         })
