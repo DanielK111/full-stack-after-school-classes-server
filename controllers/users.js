@@ -7,6 +7,10 @@ exports.login = async (req, res, next) => {
 
     try {
         const user = await req.collection.findOne({ email });
+        if (!user) {
+            return res.status(404).json({ msg: "User is not registered. Incorrect email!" });
+        }
+
         if (user) {
             const isMatch = await bcrypt.compare(password, user.password);
             if (isMatch) {
@@ -18,7 +22,7 @@ exports.login = async (req, res, next) => {
                 return res.status(200).json({ ...user, token, msg: 'User logs in.' });
             }
         }
-        return res.status(404).json({ msg: 'User does not exist or password is incorrect.' });
+        return res.status(404).json({ msg: 'User does not exist. password is incorrect.' });
 
     } catch(err) {
         const error = new Error(err);
@@ -27,7 +31,7 @@ exports.login = async (req, res, next) => {
     }
 }
 
-exports.signup = (req, res, next) => {
+exports.signup = async (req, res, next) => {
     const {
         fullname,
         email,
@@ -51,6 +55,12 @@ exports.signup = (req, res, next) => {
         return res.status(422).json({ msg: "Passwords doesn't match." });
     }
 
+    const user = await req.collection.findOne({ email });
+
+    if (user) {
+        return res.status(422).json({ msg: "User already exists." });
+    }
+
     bcrypt.hash(password, 12)
     .then(hashedPassword => {
         req.collection.insertOne({
@@ -60,8 +70,8 @@ exports.signup = (req, res, next) => {
         })
         .then(result => {
             res.status(201).json({ msg: 'User created.', result });
-            console.log('List of users: ');
-            console.log(users);
+            console.log('result: ');
+            console.log(result);
         })
         .catch(err => {
             const error = new Error(err);
