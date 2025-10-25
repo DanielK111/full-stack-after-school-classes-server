@@ -124,8 +124,10 @@ describe('Auth Middleware', function() {
             }
         })
 
-        sinon.stub(databaseUtil, 'getDB').callsFake(() => db);
-        
+        if (!databaseUtil.getDB || !databaseUtil.getDB.restore) {
+            sinon.stub(databaseUtil, 'getDB').callsFake(() => db);
+        }
+
         await isAuthMiddleware(req, {}, () => {});
 
         expect(req).to.have.property('user');
