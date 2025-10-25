@@ -5,6 +5,18 @@ exports.login = async (req, res, next) => {
     const email = req.body.email;
     const password = req.body.password;
 
+    if (email === null || password === null) {
+        return res.status(404).json({ error: true, msg: "Inputs cannot be null." });
+    }
+
+    if (email === undefined || password === undefined) {
+        return res.status(404).json({ error: true, msg: "Inputs cannot be undefined." });
+    }
+
+    if (email.length <= 0 || password.length <= 0) {
+        return res.status(422).json({ error: true, msg: "None of fields can be left empty." });
+    }
+
     try {
         const user = await req.collection.findOne({ email });
         if (!user) {
@@ -42,9 +54,23 @@ exports.signup = async (req, res, next) => {
         state,
         zip,
         phone
-     } = req.body;
+    } = req.body;
 
-     if (
+    if (
+        fullname === null || email === null || password === null || confirmPassword === null ||
+        address === null || city === null || state === null || zip === null || phone === null
+    ) {
+        return res.status(404).json({ error: true, msg: "Inputs cannot be null." });
+    }
+
+    if (
+        fullname === undefined || email === undefined || password === undefined || confirmPassword === undefined ||
+        address === undefined || city === undefined || state === undefined || zip === undefined || phone === undefined
+    ) {
+        return res.status(404).json({ error: true, msg: "Inputs cannot be undefined." });
+    }
+
+    if (
         fullname.length <= 0 || email.length <= 0 || password.length <= 0 || confirmPassword.length <= 0 ||
         address.length <= 0 || city.length <= 0 || state.length <= 0 || zip.length <= 0 || phone.length <= 0
     ) {
@@ -61,27 +87,18 @@ exports.signup = async (req, res, next) => {
         return res.status(422).json({ error: true, msg: "User already exists." });
     }
 
-    bcrypt.hash(password, 12)
-    .then(hashedPassword => {
-        req.collection.insertOne({
-            ...req.body,
-            password: hashedPassword,
-            confirmPassword: hashedPassword
-        })
-        .then(result => {
-            res.status(201).json({ error: false, msg: 'User created.', result });
-            console.log('result: ');
-            console.log(result);
-        })
-        .catch(err => {
-            const error = new Error(err);
-            error.statusCode = 500;
-            return next(error);
-        });
-    })
-    .catch(err => {
-        const error = new Error(err);
-        error.statusCode = 500;
-        return next(error);
+     try {
+    const hashedPassword = await bcrypt.hash(password, 12);
+    const result = await req.collection.insertOne({
+      ...req.body,
+      password: hashedPassword,
+      confirmPassword: hashedPassword
     });
+
+    return res.status(201).json({ error: false, msg: 'User created.', result });
+  } catch (err) {
+    const error = new Error(err);
+    error.statusCode = 500;
+    return next(error);
+  }
 }

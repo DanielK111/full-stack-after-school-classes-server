@@ -6,6 +6,7 @@ const cors = require('cors');
 const morgan = require('morgan');
 const dotenv = require('dotenv');
 
+const connectToDatabase = require('./util/database').connectToDatabase;
 const imageANDLogsControllers = require('./controllers/imageANDLogs');
 const imageANDLogsRoutes = require('./route/imageANDLogs');
 const lessonsRoutes = require('./route/lessons');
@@ -40,6 +41,9 @@ app.use((error, req, res, next) => {
     res.status(error.statusCode).send('Error: ' + error.message);
 })
 
-app.listen(process.env.PORT || 80, '0.0.0.0', () => {
-    console.log(`Server is running on port ${process.env.PORT}`);
-});
+connectToDatabase()
+.then(result => {
+    app.listen(process.env.PORT || 80, '0.0.0.0', () => {
+        console.log(`Server is running on port ${process.env.PORT}`);
+    });
+})

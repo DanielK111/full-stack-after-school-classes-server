@@ -29,8 +29,6 @@ async function connectToDatabase() {
     }
 }
 
-connectToDatabase();
-
 function getDb() {
     if (db) {
         return db;
@@ -39,3 +37,4 @@ function getDb() {
 }
 
 exports.getDB = getDb;
+exports.connectToDatabase = connectToDatabase;

@@ -18,7 +18,7 @@ module.exports = async (req, res, next) => {
     try {
         decodedToken = jwt.verify(token, process.env.JWT_SECRET);
     } catch (error) {
-        return res.json({ msg: 'Invalid or expired token.' });
+        return res.status(500).json({ msg: 'Invalid or expired token.' });
     }
 
     if (decodedToken) {
