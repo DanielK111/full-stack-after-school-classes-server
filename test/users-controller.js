@@ -1,10 +1,37 @@
+const { MongoClient, ObjectId } = require('mongodb');
 const { expect } = require('chai');
 const sinon = require('sinon');
 const bcrypt = require('bcryptjs');
 
+let db;
+
 const usersController = require('../controllers/users');
 
+let client;
+const fakeUID = new ObjectId();
+
 describe('Users Controller', function() {
+    before(async function() {
+        client = await MongoClient.connect(
+            'mongodb+srv://Dani:T7FtjBUOi8PmMqV8@cluster0.clf740k.mongodb.net/test_after_classes?retryWrites=true&w=majority&appName=Cluster0'
+        );
+        db = client.db();
+
+        await db.collection('users').insertOne({
+            fullname: 'Daniel K',
+            email: 'test@test.com',
+            password: await bcrypt.hash('test', 12),
+            confirmPassword: await bcrypt.hash('test', 12),
+            address: 'abc',
+            city: 'xyz',
+            state: 'xyz',
+            zip: '123',
+            phone: '1234567891',
+            _id: fakeUID
+        });
+    });
+
+
     describe('Login', function() {
       it('should respond with 422 when either of inputs are empty', async function() {
             const req = {
@@ -104,9 +131,7 @@ describe('Users Controller', function() {
                     email: 'test1@test.com',
                     password: 'test1'
                 },
-                collection: {
-                    findOne: sinon.stub()
-                }
+                collection: db.collection('users')
             };
         
             const res = {
@@ -122,7 +147,7 @@ describe('Users Controller', function() {
                 }
             };
 
-            req.collection.findOne.resolves(null);
+            // req.collection.findOne.resolves(null);
         
             await usersController.login(req, res, () => {});
         
@@ -132,20 +157,14 @@ describe('Users Controller', function() {
 
 
       it('should respond with 200 when the user exists', async function() {
-        const plainPassword = 'test1';
-        const hashedPassword = await bcrypt.hash(plainPassword, 12);
+        const plainPassword = 'test';
 
         const req = {
             body: {
-                email: 'test1@test.com',
+                email: 'test@test.com',
                 password: plainPassword
             },
-            collection: {
-                findOne: sinon.stub().resolves({
-                    email: 'test1@test.com',
-                    password: hashedPassword
-                })
-            }
+            collection: db.collection('users')
         };
     
         const res = {
@@ -166,8 +185,6 @@ describe('Users Controller', function() {
         expect(res.statusCode).to.equal(200);
         expect(res.payload.msg).to.equal('User logs in.');
       });
-
-
     });
 
 
@@ -295,7 +312,7 @@ describe('Users Controller', function() {
                 confirmPassword: 'test1',
                 address: 'abc',
                 city: 'xyz',
-                state: 'dfghjkm,l',
+                state: 'xyz',
                 zip: '123',
                 phone: '123456'
               },
@@ -333,23 +350,11 @@ describe('Users Controller', function() {
                     confirmPassword: 'test',
                     address: 'abc',
                     city: 'xyz',
-                    state: 'dfghjkm,l',
+                    state: 'xyz',
                     zip: '123',
                     phone: '123456'
                 },
-                collection: {
-                    findOne: sinon.stub().resolves({
-                        fullname: 'Daniel K',
-                        email: 'test@test.com',
-                        password: 'test',
-                        confirmPassword: 'test',
-                        address: 'abc',
-                        city: 'xyz',
-                        state: 'dfghjkm,l',
-                        zip: '123',
-                        phone: '123456'
-                    }),
-                }
+                collection: db.collection('users')
             };
         
             const res = {
@@ -373,33 +378,19 @@ describe('Users Controller', function() {
 
 
       it('should respond with 201 when the user does not exist', async function() {
-        const hashedPassword = await bcrypt.hash('test', 12);
         const req = {
             body: {
                 fullname: 'Daniel K',
-                email: 'test@test.com',
+                email: 'test1@test.com',
                 password: 'test',
                 confirmPassword: 'test',
                 address: 'abc',
                 city: 'xyz',
-                state: 'dfghjkm,l',
+                state: 'xyz',
                 zip: '123',
-                phone: '123456'
+                phone: '1234567891'
             },
-            collection: {
-                findOne: sinon.stub().resolves(null),
-                insertOne: sinon.stub().resolves({
-                    fullname: 'Daniel K',
-                    email: 'test@test.com',
-                    password: hashedPassword,
-                    confirmPassword: hashedPassword,
-                    address: 'abc',
-                    city: 'xyz',
-                    state: 'dfghjkm,l',
-                    zip: '123',
-                    phone: '123456'
-                })
-            }
+            collection: db.collection('users')
         };
     
         const res = {
@@ -420,8 +411,11 @@ describe('Users Controller', function() {
         expect(res.statusCode).to.equal(201);
         expect(res.payload.msg).to.equal('User created.');
       });
-
-
-
     })
+
+
+    after(async function() {
+        await db.collection('users').deleteMany({});
+        await client.close();
+    });
 });
