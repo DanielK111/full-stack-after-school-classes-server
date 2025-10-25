@@ -1,36 +1,10 @@
-const { MongoClient, ObjectId } = require('mongodb');
 const { expect } = require('chai');
 const sinon = require('sinon');
 const bcrypt = require('bcryptjs');
 
 const usersController = require('../controllers/users');
 
-let db;
-
-let client;
-const fakeUID = new ObjectId();
-
 describe('Users Controller', function() {
-    before(async function() {
-        client = await MongoClient.connect(
-            'mongodb+srv://Dani:T7FtjBUOi8PmMqV8@cluster0.clf740k.mongodb.net/test_after_classes?retryWrites=true&w=majority&appName=Cluster0'
-        );
-        db = client.db();
-
-        await db.collection('users').insertOne({
-            fullname: 'Daniel K',
-            email: 'test@test.com',
-            password: 'test',
-            confirmPassword: 'test',
-            address: 'abc',
-            city: 'xyz',
-            zip: '123',
-            phone: '1234567891',
-            _id: fakeUID
-        });
-    });
-
-
     describe('Login', function() {
       it('should respond with 422 when either of inputs are empty', async function() {
             const req = {
@@ -450,11 +424,4 @@ describe('Users Controller', function() {
 
 
     })
-
-
-
-    after(async function() {
-        await db.collection('users').deleteMany({});
-        await client.close();
-    });
 });
