@@ -159,88 +159,80 @@ exports.postOrder = async (req, res, next) => {
         return res.status(422).json({ error: true, msg: "Request body cannot be left empty." });
     }
 
-    req.collection.insertOne({ ...body, totalPrice })
-    .then(result => {
-        myOrder.push(body);
-        cart = [];
-        totalQuantity = 0;
-        totalPrice = 0;
-        console.log(myOrder);
-        console.log(myOrder.length);
-        
-        
-        function orderHtml() {
-            const rows = body.order.map(order => `
-                <tr>
-                    <td>${ order._id }</td>
-                    <td>${ order.subject }</td>
-                    <td>${ order.location }</td>
-                    <td>${ order.price }</td>
-                    <td>${ order.rating }</td>
-                    <td>${ order.quantity }</td>
-                </tr>
-            `).join('');
-
-            return `
-                <table border="1" cellpadding="5" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Subject</th>
-                            <th>Location</th>
-                            <th>Price</th>
-                            <th>Rating</th>
-                            <th>Quantity</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${rows}
-                    </tbody>
-                </table>
-            `
-        }
-
-        const resendOrderHtml = orderHtml(body.order);
-
-        resend.emails.send({
-            to: [ body.customer.email ],
-            from: 'After School Classes Team <onboarding@resend.dev>',
-            subject: 'Order Submitted',
-            html: `
-                <h2>Customer:</h2>
-                <p><span>Full Name: </span>${body.customer.fullname}</p>
-                <p><span>Email Address: </span>${body.customer.email}</p>
-                <p><span>Address: </span>${body.customer.address}</p>
-                <p><span>City: </span>${body.customer.city}</p>
-                <p><span>State: </span>${body.customer.state}</p>
-                <p><span>Zip: </span>${body.customer.zip}</p>
-                <p><span>Phone: </span>${body.customer.phone}</p>
-                <p><span>Gift: </span>${body.customer.gift}</p>
-                <p><span>Method: </span>${body.customer.method}</p>
-                <h2>Order:</h2>
-                ${resendOrderHtml}
-            `
-        });
+    await req.collection.insertOne({ ...body, totalPrice });
     
-        return res.json({ myOrder, cart, totalQuantity, totalPrice, msg: 'Order placed!' });
-    })
-    .catch((err) => {
-        const error = new Error(err);
-        error.statusCode = 500;
-        throw error;
+    myOrder.push(body);
+    cart = [];
+    totalQuantity = 0;
+    totalPrice = 0;
+    console.log(myOrder);
+    console.log(myOrder.length);
+    
+    
+    function orderHtml() {
+        const rows = body.order.map(order => `
+            <tr>
+                <td>${ order._id }</td>
+                <td>${ order.subject }</td>
+                <td>${ order.location }</td>
+                <td>${ order.price }</td>
+                <td>${ order.rating }</td>
+                <td>${ order.quantity }</td>
+            </tr>
+        `).join('');
+
+        return `
+            <table border="1" cellpadding="5" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Subject</th>
+                        <th>Location</th>
+                        <th>Price</th>
+                        <th>Rating</th>
+                        <th>Quantity</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rows}
+                </tbody>
+            </table>
+        `
+    }
+
+    const resendOrderHtml = orderHtml(body.order);
+
+    resend.emails.send({
+        to: [ body.customer.email ],
+        from: 'After School Classes Team <onboarding@resend.dev>',
+        subject: 'Order Submitted',
+        html: `
+            <h2>Customer:</h2>
+            <p><span>Full Name: </span>${body.customer.fullname}</p>
+            <p><span>Email Address: </span>${body.customer.email}</p>
+            <p><span>Address: </span>${body.customer.address}</p>
+            <p><span>City: </span>${body.customer.city}</p>
+            <p><span>State: </span>${body.customer.state}</p>
+            <p><span>Zip: </span>${body.customer.zip}</p>
+            <p><span>Phone: </span>${body.customer.phone}</p>
+            <p><span>Gift: </span>${body.customer.gift}</p>
+            <p><span>Method: </span>${body.customer.method}</p>
+            <h2>Order:</h2>
+            ${resendOrderHtml}
+        `
     });
-    
+
+    return res.status(200).json({ myOrder, cart, totalQuantity, totalPrice, msg: 'Order placed!' });  
 }
 
 exports.updateLesson = async (req, res, next) => {
     const lessonId = req.params.lessonId;
     const body = req.body;
 
-    req.collection.updateOne(
+    await req.collection.updateOne(
         { _id: new ObjectId(lessonId) },
         { $set: { space: body.space - body.quantity } }
     )
-    .then (result => {
-        return res.json({ msg: 'Lesson Updated!' });
-    })
+    
+    return res.json({ msg: 'Lesson Updated!' });
 }
