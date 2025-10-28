@@ -1,0 +1,212 @@
+const { MongoClient, ObjectId } = require('mongodb');
+const expect = require('chai').expect;
+const sinon = require('sinon');
+
+const database = require('../util/database');
+
+let db;
+
+const lessonsController = require('../controllers/lessons');
+
+let client;
+const fakeUID = new ObjectId();
+
+describe('Lessons Controller', function() {
+    before(async function() {
+        client = await MongoClient.connect(
+            'mongodb+srv://Dani:T7FtjBUOi8PmMqV8@cluster0.clf740k.mongodb.net/test_after_classes?retryWrites=true&w=majority&appName=Cluster0'
+        );
+        db = client.db();
+
+        await db.collection('users').insertOne({
+            fullname: 'Daniel K',
+            email: 'test@test.com',
+            password: 'test',
+            confirmPassword: 'test',
+            address: 'abc',
+            city: 'xyz',
+            zip: '123',
+            phone: '1234567891',
+            _id: fakeUID
+        });
+
+        await db.collection('lessons').insertOne({
+            subject: 'Math',
+            location: 'London',
+            price: 100,
+            space: 4,
+            rating: 4,
+            _id: fakeUID
+        })
+    });
+
+    
+    describe('getShuffledLessons', function() {
+        it('should respond with 200 and lessons in payload has items retreived', async() => {
+            const user = await db.collection('users').find().toArray();
+
+            const req = {
+                query: {},
+                collection: db.collection('lessons'),
+                user
+            };
+
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+
+            await lessonsController.getSuffledLessons(req, res, () => {});
+
+            expect(res.statusCode).to.equal(200);
+            expect(req).to.have.property('user');
+            expect(res.payload.lessons[0]).to.have.property('subject');
+            expect(res.payload.user[0]).to.have.property('_id');
+        })
+    })
+
+
+    describe('getLessonById', function() {
+        it('should throw and error if no lessons are found', async() => {
+            const req = {
+                params: [ '66aabbccddeeff0011223344' ]
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+            sinon.stub(database, 'getDB').returns(db);
+            try {
+                await lessonsController.getLessonById(req, res, () => {});
+                throw new Error('Expected method to throw.');
+            } catch (err) {
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal('Resouece not found');
+                expect(err.statusCode).to.equal(404);
+            }
+
+            database.getDB.restore();
+        })
+
+
+        it('should pass with respon 200 and get back the lesson', async() => {
+            const req = {
+                params: [ fakeUID.toString() ]
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+            sinon.stub(database, 'getDB').returns(db);
+            await lessonsController.getLessonById(req, res, () => {});
+            
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload.lesson._id.toString()).to.equal(fakeUID.toString());
+            
+
+            database.getDB.restore();
+        })
+    })
+
+
+    describe('postOrder', function() {
+        it('should respond with 404 if request body is null', async() => {
+            const req = {
+                body: null
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+
+            await lessonsController.postOrder(req, res, () => {});
+
+            expect(res.statusCode).to.equal(404);
+            expect(res.payload).to.have.property('msg', 'Request body cannot be null.');
+        })
+
+        it('should respond with 404 if request body is undefined', async() => {
+            const req = {
+                body: undefined
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+
+            await lessonsController.postOrder(req, res, () => {});
+
+            expect(res.statusCode).to.equal(404);
+            expect(res.payload).to.have.property('msg', 'Request body cannot be undefined.');
+        })
+
+
+        it('should respond with 422 if request body is empty', async() => {
+            const req = {
+                body: ''
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+
+            await lessonsController.postOrder(req, res, () => {});
+
+            expect(res.statusCode).to.equal(422);
+            expect(res.payload).to.have.property('msg', 'Request body cannot be left empty.');
+        })
+    })
+
+    after(async function() {
+        await db.collection('users').deleteMany({});
+        await client.close();
+    });
+})

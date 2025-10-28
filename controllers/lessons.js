@@ -3,7 +3,7 @@ const { ObjectId } = require('mongodb');
 const dotenv = require('dotenv');
 const Resend = require('resend').Resend;
 
-const { getDB } = require('../util/database');
+const database = require('../util/database');
 const states = require('../data/states').states;
 
 dotenv.config();
@@ -35,7 +35,7 @@ exports.getSuffledLessons = async (req, res, next) => {
         lessons = await req.collection.find().toArray();
     }
     const shuffled = lodash.shuffle(lessons);
-    res.json({
+    return res.status(200).json({
         lessons: shuffled,
         states: states,
         cart,
@@ -48,18 +48,18 @@ exports.getSuffledLessons = async (req, res, next) => {
 
 exports.getLessonById = async (req, res, next) => {
     const lessonId = req.params[0];
-    const db = getDB();
+    const db = database.getDB();
     // I can just search mongodb for specific id but I wanted to show I know lodash
     // This way return value is an object(lesson with _id === lessonId)
     // const lesson = await db.collection('lessons').findOne({ _id: new ObjectId(lessonId) });
     const lessons = await db.collection('lessons').find().toArray();
     const lesson = lodash.find(lessons, lesson => lesson._id.toString() === lessonId);
     if (lesson) {
-        return res.json({ lesson })
+        return res.status(200).json({ lesson })
     }
     const error = new Error('Resouece not found');
     error.statusCode = 404;
-    return next(error);
+    throw error;
 }
 
 exports.getLessonByLocation = async (req, res, next) => {
@@ -76,20 +76,20 @@ exports.getLessonByLocation = async (req, res, next) => {
     // const lesson = lodash.find(locations, lesson => lesson.location === location);
     const lessons = await req.collection.find().toArray();
     const lesson = lodash.find(lessons, lesson => lesson.location.toLocaleLowerCase() === location.toLocaleLowerCase());
-    res.json({ lesson });
+    return res.status(200).json({ lesson });
 }
 
 exports.getFirstLessonByPrice = async (req, res, next) => {
     // const lesson = lodash.filter(lessons.lessons, lesson => lesson.price < 100); // Returns array of lessons
     const lessons = await req.collection.find().toArray();
     const lesson = lodash.find(lessons, lesson => lesson.price < 100);
-    res.json({ lesson });
+    return res.status(200).json({ lesson });
 }
 
 exports.getLastLessonByPrice = async (req, res, next) => {
     const lessons = await req.collection.find().toArray();
     const lesson = lodash.findLast(lessons, lesson => lesson.price < 100);
-    res.json({ lesson });
+    return res.status(200).json({ lesson });
 }
 
 exports.postLesson = (req, res, next) => {
@@ -102,7 +102,7 @@ exports.postLesson = (req, res, next) => {
 
     console.log(cart)
 
-    res.json({ cart, totalQuantity, totalPrice });
+    return res.status(200).json({ cart, totalQuantity, totalPrice });
 }
 
 exports.putLesson = (req, res, next) => {
@@ -121,7 +121,7 @@ exports.putLesson = (req, res, next) => {
 
     console.log(cart)
 
-    res.json({ cart, totalQuantity, totalPrice, msg: 'Updated Succcessfully!' });
+    return res(200).json({ cart, totalQuantity, totalPrice, msg: 'Updated Succcessfully!' });
 }
 
 exports.deleteLesson = (req, res, next) => {
@@ -142,11 +142,23 @@ exports.deleteLesson = (req, res, next) => {
 
     console.log(cart)
 
-    res.json({ cart, totalQuantity, totalPrice, msg: 'Deleted Succcessfully!' });
+    return res(200).json({ cart, totalQuantity, totalPrice, msg: 'Deleted Succcessfully!' });
 }
 
 exports.postOrder = async (req, res, next) => {
     const body = req.body;
+    if (body === null) {
+        return res.status(404).json({ error: true, msg: "Request body cannot be null." });
+    }
+
+    if (body === undefined) {
+        return res.status(404).json({ error: true, msg: "Request body cannot be undefined." });
+    }
+
+    if (body.length <= 0) {
+        return res.status(422).json({ error: true, msg: "Request body cannot be left empty." });
+    }
+
     req.collection.insertOne({ ...body, totalPrice })
     .then(result => {
         myOrder.push(body);
@@ -212,6 +224,12 @@ exports.postOrder = async (req, res, next) => {
     
         return res.json({ myOrder, cart, totalQuantity, totalPrice, msg: 'Order placed!' });
     })
+    .catch((err) => {
+        const error = new Error(err);
+        error.statusCode = 500;
+        throw error;
+    });
+    
 }
 
 exports.updateLesson = async (req, res, next) => {
