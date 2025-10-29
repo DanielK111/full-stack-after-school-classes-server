@@ -229,10 +229,22 @@ exports.updateLesson = async (req, res, next) => {
     const lessonId = req.params.lessonId;
     const body = req.body;
 
+    if (body === null || lessonId === null) {
+        return res.status(404).json({ error: true, msg: "Request body or params cannot be null." });
+    }
+
+    if (body === undefined || lessonId === undefined) {
+        return res.status(404).json({ error: true, msg: "Request body or params cannot be undefined." });
+    }
+
+    if (body.length <= 0 || lessonId.length <= 0) {
+        return res.status(422).json({ error: true, msg: "Request body or params cannot be left empty." });
+    }
+
     await req.collection.updateOne(
         { _id: new ObjectId(lessonId) },
         { $set: { space: body.space - body.quantity } }
     )
     
-    return res.json({ msg: 'Lesson Updated!' });
+    return res.status(200).json({ msg: 'Lesson Updated!' });
 }

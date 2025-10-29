@@ -262,8 +262,128 @@ describe('Lessons Controller', function() {
         })
     })
 
+
+    describe('updateLesson', function() {
+        it('should respond with 404 if request body or params is null', async() => {
+            const req = {
+                body: null,
+                params: {
+                    lessonId: null
+                }
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+
+            await lessonsController.updateLesson(req, res, () => {});
+
+            expect(res.statusCode).to.equal(404);
+            expect(res.payload).to.have.property('msg', 'Request body or params cannot be null.');
+        })
+
+        it('should respond with 404 if request body is undefined', async() => {
+            const req = {
+                body: undefined,
+                params: {
+                    lessonId: undefined
+                }
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+
+            await lessonsController.updateLesson(req, res, () => {});
+
+            expect(res.statusCode).to.equal(404);
+            expect(res.payload).to.have.property('msg', 'Request body or params cannot be undefined.');
+        })
+
+
+        it('should respond with 422 if request body is empty', async() => {
+            const req = {
+                body: '',
+                params: {
+                    lessonId: ''
+                }
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+
+            await lessonsController.updateLesson(req, res, () => {});
+
+            expect(res.statusCode).to.equal(422);
+            expect(res.payload).to.have.property('msg', 'Request body or params cannot be left empty.');
+        })
+
+
+        it('should respond with 200 when succeeded', async() => {
+            const req = {
+                body: {
+                    quantity: 2,
+                    space: 5
+                },
+                params: {
+                    lessonId: fakeUID.toString()
+                },
+                collection: db.collection('lesssons')
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+            sinon.stub(database, 'getDB').returns(db);
+
+            const result = await lessonsController.updateLesson(req, res, () => {});
+
+            console.log('Test Result:')
+            console.log(result)
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload.msg).to.equal('Lesson Updated!');
+            
+            database.getDB.restore();
+        })
+    })
+
     after(async function() {
         await db.collection('users').deleteMany({});
+        await db.collection('lessons').deleteMany({});
+        await db.collection('orders').deleteMany({});
         await client.close();
     });
 })
