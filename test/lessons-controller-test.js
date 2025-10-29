@@ -30,14 +30,24 @@ describe('Lessons Controller', function() {
             _id: fakeUID
         });
 
-        await db.collection('lessons').insertOne({
-            subject: 'Math',
-            location: 'London',
-            price: 100,
-            space: 4,
-            rating: 4,
-            _id: fakeUID
-        })
+        await db.collection('lessons').insertMany([
+            {
+                subject: 'Math',
+                location: 'London',
+                price: 100,
+                space: 4,
+                rating: 4,
+                _id: fakeUID
+            },
+            {
+                subject: 'Math',
+                location: 'London',
+                price: 50,
+                space: 4,
+                rating: 4,
+                _id: new ObjectId()
+            }
+        ])
     });
 
     
@@ -126,6 +136,133 @@ describe('Lessons Controller', function() {
             
             expect(res.statusCode).to.equal(200);
             expect(res.payload.lesson._id.toString()).to.equal(fakeUID.toString());
+            
+
+            database.getDB.restore();
+        })
+    })
+
+
+    describe('getLessonByLocation', function() {
+        it('should throw and error if no lessons are found', async() => {
+            const req = {
+                query: {
+                    location: 'reading'
+                },
+                collection: db.collection('lessons')
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+            sinon.stub(database, 'getDB').returns(db);
+            try {
+                await lessonsController.getLessonByLocation(req, res, () => {});
+                throw new Error('Expected method to throw.');
+            } catch (err) {
+                expect(err).to.be.instanceOf(Error);
+                expect(err.message).to.equal('Resouece not found');
+                expect(err.statusCode).to.equal(404);
+            }
+
+            database.getDB.restore();
+        })
+
+
+        it('should pass with respon 200 and get back the lesson', async() => {
+            const req = {
+                query: {
+                    location: 'london'
+                },
+                collection: db.collection('lessons')
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+            sinon.stub(database, 'getDB').returns(db);
+            await lessonsController.getLessonByLocation(req, res, () => {});
+            
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload.lesson._id.toString()).to.equal(fakeUID.toString());
+            
+
+            database.getDB.restore();
+        })
+    })
+
+
+    describe('getFirstLessonByPrice', function() {
+        it('should pass with respon 200 and get back the lesson', async() => {
+            const req = {
+                collection: db.collection('lessons')
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+            sinon.stub(database, 'getDB').returns(db);
+            const result = await lessonsController.getFirstLessonByPrice(req, res, () => {});
+            console.log('Result:');
+            console.log(result);
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload.lesson._id.toString()).to.equal(fakeUID.toString());
+            
+
+            database.getDB.restore();
+        })
+    })
+
+
+    describe('getLastLessonByPrice', function() {
+        it('should pass with 200 and get back the lesson', async() => {
+            const req = {
+                collection: db.collection('lessons')
+            };
+            const res = {
+                statusCode: 0,
+                payload: null,
+                status: function(code) {
+                    this.statusCode = code;
+                    return this;
+                },
+                json: function(obj) {
+                    this.payload = obj;
+                    return this;
+                }
+            };
+            sinon.stub(database, 'getDB').returns(db);
+            const result = await lessonsController.getLastLessonByPrice(req, res, () => {});
+            console.log('Result:');
+            console.log(result);
+
+            expect(res.statusCode).to.equal(200);
+            expect(res.payload.lesson).to.have.property('_id');
             
 
             database.getDB.restore();

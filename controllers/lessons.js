@@ -76,20 +76,35 @@ exports.getLessonByLocation = async (req, res, next) => {
     // const lesson = lodash.find(locations, lesson => lesson.location === location);
     const lessons = await req.collection.find().toArray();
     const lesson = lodash.find(lessons, lesson => lesson.location.toLocaleLowerCase() === location.toLocaleLowerCase());
-    return res.status(200).json({ lesson });
+    if (lesson) {
+        return res.status(200).json({ lesson })
+    }
+    const error = new Error('Resouece not found');
+    error.statusCode = 404;
+    throw error;
 }
 
 exports.getFirstLessonByPrice = async (req, res, next) => {
     // const lesson = lodash.filter(lessons.lessons, lesson => lesson.price < 100); // Returns array of lessons
     const lessons = await req.collection.find().toArray();
-    const lesson = lodash.find(lessons, lesson => lesson.price < 100);
-    return res.status(200).json({ lesson });
+    const lesson = lodash.find(lessons, lesson => lesson.price <= 100);
+    if (lesson) {
+        return res.status(200).json({ lesson })
+    }
+    const error = new Error('Resouece not found');
+    error.statusCode = 404;
+    throw error;
 }
 
 exports.getLastLessonByPrice = async (req, res, next) => {
     const lessons = await req.collection.find().toArray();
-    const lesson = lodash.findLast(lessons, lesson => lesson.price < 100);
-    return res.status(200).json({ lesson });
+    const lesson = lodash.findLast(lessons, lesson => lesson.price <= 100);
+    if (lesson) {
+        return res.status(200).json({ lesson })
+    }
+    const error = new Error('Resouece not found');
+    error.statusCode = 404;
+    throw error;
 }
 
 exports.postLesson = (req, res, next) => {
