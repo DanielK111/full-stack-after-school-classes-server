@@ -19,7 +19,11 @@ dotenv.config();
 const app = express();
 app.set('json spaces', 3);
 
-app.use(cors());
+app.use(cors({
+  origin: ["https://danielk111.github.io/full-stack-after-school-classes-client/", "http://localhost:5173"],
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true
+}));
 app.use(express.json());
 
 const createLogStream = fs.createWriteStream(
