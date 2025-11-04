@@ -136,7 +136,7 @@ exports.putLesson = (req, res, next) => {
 
     console.log(cart)
 
-    return res(200).json({ cart, totalQuantity, totalPrice, msg: 'Updated Succcessfully!' });
+    return res.status(200).json({ cart, totalQuantity, totalPrice, msg: 'Updated Succcessfully!' });
 }
 
 exports.deleteLesson = (req, res, next) => {
@@ -157,7 +157,7 @@ exports.deleteLesson = (req, res, next) => {
 
     console.log(cart)
 
-    return res(200).json({ cart, totalQuantity, totalPrice, msg: 'Deleted Succcessfully!' });
+    return res.status(200).json({ cart, totalQuantity, totalPrice, msg: 'Deleted Succcessfully!' });
 }
 
 exports.postOrder = async (req, res, next) => {
