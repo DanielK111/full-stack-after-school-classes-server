@@ -20,7 +20,7 @@ const app = express();
 app.set('json spaces', 3);
 
 app.use(cors({
-  origin: ["https://danielk111.github.io/full-stack-after-school-classes-client/", "http://localhost:5173"],
+  origin: ["https://danielk111.github.io/full-stack-after-school-classes-client/", "http://localhost:5501"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   credentials: true
 }));
