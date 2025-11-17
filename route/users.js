@@ -69,6 +69,7 @@ router.post('/:collectionName/signup',
             if(value !== req.body.password) {
                 throw new Error('Passwords must match.')
             }
+            return true;
         })
         .trim()
     ],
