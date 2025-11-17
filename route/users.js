@@ -18,7 +18,7 @@ router.post('/:collectionName/login',
         .isEmail()
         .withMessage('Please Enter a valid E-Mail.')
         .custom((values, { req }) => {
-            return db.collection('users').findOne({ email: value })
+            return getDB().collection('users').findOne({ email: value })
             .then(user => {
                 if(!user) {
                     return Promise.reject('E-Mail exists already. Please pick a different one.')
@@ -43,7 +43,7 @@ router.post('/:collectionName/signup',
         .isEmail()
         .withMessage('Please Enter a valid E-Mail.')
         .custom((values, { req }) => {
-            return db.collection('users').findOne({ email: value })
+            return getDB().collection('users').findOne({ email: value })
             .then(user => {
                 if(!user) {
                     return Promise.reject('E-Mail exists already. Please pick a different one.')
