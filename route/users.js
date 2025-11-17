@@ -20,7 +20,7 @@ router.post('/:collectionName/login',
         .custom((value, { req }) => {
             return getDB().collection('users').findOne({ email: value })
             .then(user => {
-                if(user) {
+                if(!user) {
                     return Promise.reject('E-Mail does not exist. Try again.')
                 }
             })
@@ -48,7 +48,7 @@ router.post('/:collectionName/signup',
         .custom((value, { req }) => {
             return getDB().collection('users').findOne({ email: value })
             .then(user => {
-                if(!user) {
+                if(user) {
                     return Promise.reject('E-Mail exists already. Please pick a different one.')
                 }
             })
