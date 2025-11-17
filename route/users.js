@@ -20,8 +20,8 @@ router.post('/:collectionName/login',
         .custom((values, { req }) => {
             return getDB().collection('users').findOne({ email: value })
             .then(user => {
-                if(!user) {
-                    return Promise.reject('E-Mail exists already. Please pick a different one.')
+                if(user) {
+                    return Promise.reject('E-Mail does not exist. Try again.')
                 }
             })
         })
@@ -29,10 +29,13 @@ router.post('/:collectionName/login',
         body('password')
         .isLength({min: 8, max: 16})
         .withMessage('Password must be between 8 and 16 characters long.')
+        .matches(/^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*\W)(?!.* ).{8,16}$/)
+        .withMessage('Password must include at least one lowercase letter, one uppercase letter, one number, one special character, and no spaces.')
         .trim()
     ],
     usersControllers.login
 );
+
 router.post('/:collectionName/signup',
     [
         body('fullname')
