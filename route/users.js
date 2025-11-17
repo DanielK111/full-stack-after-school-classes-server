@@ -17,7 +17,7 @@ router.post('/:collectionName/login',
         body('email')
         .isEmail()
         .withMessage('Please Enter a valid E-Mail.')
-        .custom((values, { req }) => {
+        .custom((value, { req }) => {
             return getDB().collection('users').findOne({ email: value })
             .then(user => {
                 if(user) {
@@ -45,7 +45,7 @@ router.post('/:collectionName/signup',
         body('email')
         .isEmail()
         .withMessage('Please Enter a valid E-Mail.')
-        .custom((values, { req }) => {
+        .custom((value, { req }) => {
             return getDB().collection('users').findOne({ email: value })
             .then(user => {
                 if(!user) {
