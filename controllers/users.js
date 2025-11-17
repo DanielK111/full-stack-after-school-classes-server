@@ -20,7 +20,7 @@ exports.login = async (req, res, next) => {
 
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
-        return res.status(422).json({ error: true, msg: errors.array() });
+        return res.status(422).json({ error: true, errorArray: errors.array(), msg: errors.array().msg });
     }
 
     try {
@@ -85,7 +85,7 @@ exports.signup = async (req, res, next) => {
 
     const errors = validationResult(req);
     if(!errors.isEmpty()) {
-        return res.status(422).json({ error: true, msg: errors.array() });
+        return res.status(422).json({ error: true, errorArray: errors.array(), msg: errors.array().msg });
     }
 
     if (password !== confirmPassword) {
