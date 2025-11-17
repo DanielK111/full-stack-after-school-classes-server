@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
 
 exports.login = async (req, res, next) => {
     const email = req.body.email;
@@ -15,6 +16,11 @@ exports.login = async (req, res, next) => {
 
     if (email.length <= 0 || password.length <= 0) {
         return res.status(422).json({ error: true, msg: "None of fields can be left empty." });
+    }
+
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        return res.status(422).json({ error: true, msg: errors.array() });
     }
 
     try {
@@ -75,6 +81,11 @@ exports.signup = async (req, res, next) => {
         address.length <= 0 || city.length <= 0 || state.length <= 0 || zip.length <= 0 || phone.length <= 0
     ) {
         return res.status(422).json({ error: true, msg: "None of fields can be left empty." });
+    }
+
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) {
+        return res.status(422).json({ error: true, msg: errors.array() });
     }
 
     if (password !== confirmPassword) {
