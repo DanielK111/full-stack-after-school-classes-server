@@ -9,6 +9,15 @@ exports.getConsoleLogs = (req, res, next) => {
     next();
 }
 
+exports.getConsoleLogsWithCollectionName = (req, res, next) => {
+    req.collection.find().toArray(function(err, result) {
+        if(err) {
+            return next(err);
+        }
+        return res.status(200).send(result);
+    })
+}
+
 exports.getFile = (req, res, next) => {
     const filename = req.params.filename;
     console.log(filename)
