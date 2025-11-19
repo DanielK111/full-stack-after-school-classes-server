@@ -9,13 +9,16 @@ exports.getConsoleLogs = (req, res, next) => {
     next();
 }
 
-exports.getConsoleLogsWithCollectionName = (req, res, next) => {
-    req.collection.find().toArray(function(err, result) {
-        if(err) {
-            return next(err);
-        }
-        return res.status(200).send(result);
-    })
+exports.getConsoleLogsWithCollectionName = async (req, res, next) => {
+    const myCollection = await req.collection.find({}).toArray();
+    
+    if(!myCollection) {
+        const error = new Error(err);
+        error.statusCode = 500;
+        return next(error);
+    }
+
+    return res.status(200).send(myCollection);
 }
 
 exports.getFile = (req, res, next) => {
