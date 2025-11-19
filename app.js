@@ -37,7 +37,7 @@ app.use('/images', express.static(path.join(__dirname, 'images')));
 
 
 app.use(imageANDLogsControllers.getConsoleLogs);
-app.use(imageANDLogsRoutes);
+app.use('/', imageANDLogsRoutes);
 app.use('/', usersRoutes);
 app.use('/api', lessonsRoutes);
 
